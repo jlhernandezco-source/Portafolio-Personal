@@ -30,7 +30,9 @@ botonMenu.addEventListener("click", () => {
 });
 
 enlacesMenu.forEach((enlace) => {
-  enlace.addEventListener("click", () => cambiarMenu(false));
+  enlace.addEventListener("click", () => {
+    window.setTimeout(() => cambiarMenu(false), 0);
+  });
 });
 
 document.addEventListener("keydown", (evento) => {
@@ -61,17 +63,20 @@ elementosRevelar.forEach((elemento) => {
   observadorRevelado.observe(elemento);
 });
 
-function actualizarNavegacionActiva(entradas) {
-  const seccionActiva = entradas
-    .filter((entrada) => entrada.isIntersecting)
-    .sort((primera, segunda) => primera.boundingClientRect.top - segunda.boundingClientRect.top)[0];
-
-  if (!seccionActiva) {
+function actualizarNavegacionActiva() {
+  if (!secciones.length) {
     return;
   }
 
+  const alFinal = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+  const lineaActiva = window.innerHeight * 0.35;
+  const seccionActiva = alFinal
+    ? secciones.at(-1)
+    : [...secciones].reverse().find((seccion) => seccion.getBoundingClientRect().top <= lineaActiva)
+      || secciones[0];
+
   enlacesMenu.forEach((enlace) => {
-    const activo = enlace.getAttribute("href") === `#${seccionActiva.target.id}`;
+    const activo = enlace.getAttribute("href") === `#${seccionActiva.id}`;
 
     if (activo) {
       enlace.setAttribute("aria-current", "location");
@@ -81,38 +86,22 @@ function actualizarNavegacionActiva(entradas) {
   });
 }
 
-if ("IntersectionObserver" in window) {
-  const observadorSecciones = new IntersectionObserver(
-    actualizarNavegacionActiva,
-    { rootMargin: "-18% 0px -68% 0px", threshold: 0 }
-  );
-  secciones.forEach((seccion) => observadorSecciones.observe(seccion));
-} else {
-  const actualizarAlDesplazar = () => {
-    const lineaActiva = window.innerHeight * 0.35;
-    const seccionActiva = secciones
-      .map((seccion) => ({
-        seccion,
-        distancia: Math.abs(seccion.getBoundingClientRect().top - lineaActiva)
-      }))
-      .sort((primera, segunda) => primera.distancia - segunda.distancia)[0]?.seccion;
+let actualizacionPendiente = false;
+function solicitarActualizacionNavegacion() {
+  if (actualizacionPendiente) {
+    return;
+  }
 
-    if (!seccionActiva) {
-      return;
-    }
-
-    enlacesMenu.forEach((enlace) => {
-      if (enlace.getAttribute("href") === `#${seccionActiva.id}`) {
-        enlace.setAttribute("aria-current", "location");
-      } else {
-        enlace.removeAttribute("aria-current");
-      }
-    });
-  };
-
-  window.addEventListener("scroll", actualizarAlDesplazar, { passive: true });
-  actualizarAlDesplazar();
+  actualizacionPendiente = true;
+  requestAnimationFrame(() => {
+    actualizarNavegacionActiva();
+    actualizacionPendiente = false;
+  });
 }
+
+window.addEventListener("scroll", solicitarActualizacionNavegacion, { passive: true });
+window.addEventListener("resize", solicitarActualizacionNavegacion);
+actualizarNavegacionActiva();
 
 const contadores = document.querySelectorAll("[data-contador]");
 
