@@ -7,6 +7,8 @@
   --texto-suave: #b7b2b0;
   --acento: #d97757;
   --acento-claro: #f09573;
+  --azul-boton: #3b82f6;
+  --azul-boton-hover: #60a5fa;
   --borde: #302c30;
   --ancho: 72rem;
   --radio: 0.85rem;
@@ -292,9 +294,9 @@ h3 {
   justify-content: center;
   gap: 1.4rem;
   padding: 0.75rem 1.25rem;
-  border: 1px solid var(--acento);
+  border: 1px solid var(--azul-boton);
   border-radius: 0.5rem;
-  background: var(--acento);
+  background: var(--azul-boton);
   color: var(--fondo);
   font-size: 0.92rem;
   font-weight: 700;
@@ -304,8 +306,8 @@ h3 {
 
 .boton:hover {
   transform: translateY(-3px);
-  background: var(--acento-claro);
-  box-shadow: 0 0.7rem 2rem rgb(217 119 87 / 22%);
+  background: var(--azul-boton-hover);
+  box-shadow: 0 0.7rem 2rem rgb(59 130 246 / 22%);
   color: var(--fondo);
 }
 
